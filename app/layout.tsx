@@ -6,7 +6,11 @@ export const metadata: Metadata = {
   description: "Web application to paste Power Apps fuel dispatch receipts, view realistic 75mm thermal preview with logos, and print directly to thermal receipt printers.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
   },
 };
 
@@ -24,11 +28,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-      </head>
       <body className="antialiased min-h-screen bg-slate-100/80 text-slate-900 flex flex-col">
         {children}
       </body>
