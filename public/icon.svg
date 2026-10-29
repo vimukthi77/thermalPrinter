@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#3730a3" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#grad)" />
+  <!-- Printer body -->
+  <rect x="96" y="190" width="320" height="190" rx="28" fill="#ffffff" />
+  <rect x="136" y="230" width="240" height="20" rx="10" fill="#1e1b4b" />
+  <circle cx="360" cy="300" r="14" fill="#10b981" />
+  <circle cx="316" cy="300" r="14" fill="#f59e0b" />
+  <!-- Receipt Paper -->
+  <path d="M140 100 H372 V230 H140 Z" fill="#f8fafc" />
+  <!-- Perforated top -->
+  <path d="M140 100 L156 112 L172 100 L188 112 L204 100 L220 112 L236 100 L252 112 L268 100 L284 112 L300 100 L316 112 L332 100 L348 112 L364 100 L372 106 V230 H140 Z" fill="#ffffff" />
+  <!-- Receipt text lines -->
+  <line x1="170" y1="140" x2="342" y2="140" stroke="#0f172a" stroke-width="8" stroke-linecap="round" />
+  <line x1="170" y1="165" x2="300" y2="165" stroke="#64748b" stroke-width="6" stroke-linecap="round" />
+  <line x1="170" y1="190" x2="320" y2="190" stroke="#64748b" stroke-width="6" stroke-linecap="round" />
+</svg>
+
