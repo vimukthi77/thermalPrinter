@@ -87,25 +87,7 @@ body {
     text-shadow: 0 0 0.35px #000000 !important; /* Forces thick, dark thermal pin strikes */
   }
 
-  /* Logos in print */
-  .receipt-top-logos {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 3mm !important;
-    margin: 0 auto 2mm auto !important;
-    width: 100% !important;
-  }
-
-  .receipt-logo {
-    max-height: 8mm !important;
-    max-width: 32mm !important;
-    display: block !important;
-    object-fit: contain !important;
-    filter: grayscale(100%) contrast(140%) !important;
-  }
-
-  /* 3cm paper feed tail after footer */
+  /* Paper feed tail after footer */
   .receipt-feed-tail {
     display: block !important;
     visibility: visible !important;

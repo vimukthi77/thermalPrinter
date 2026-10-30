@@ -14,10 +14,11 @@ A production-ready, client-side Next.js 14+ (App Router, TypeScript, Tailwind CS
   - Monochrome monospace rendering (`Courier New` / Consolas).
   - Scaled typography: 12px body, 15px titles, 22px bold quantity highlight.
   - Authentic thermal receipt look with subtle paper drop shadow.
-- **Dual Top Logos (Lakdhanavi & Rividhanavi)**:
-  - Both **Lakdhanavi Limited** and **Rividhanavi (Private) Limited** company logos are embedded by default at the top of the receipt as small, high-contrast monochrome-compatible icons.
-  - Multiple arrangement modes in Settings: Side-by-Side (default), Stacked, Lakdhanavi only, Rividhanavi only, or Custom.
-  - Stored in browser `localStorage` as base64 (persists across sessions).
+- **All Letters Bold Mode**:
+  - High-contrast thermal print mode where all characters are rendered in bold monospace (`font-bold` / `font-black`) to ensure physical printer heads burn dark, legible letters without fading.
+- **Customizable Paper Feed Tail (Default 6cm)**:
+  - Adds extra blank paper feed after the footer so the printer's auto-cutter or tear-bar does not cut into receipt text.
+  - Quick presets for 6cm (Default), 8cm, 10cm, 12cm, 15cm, 4cm, 2cm, or 0cm, plus a range slider for custom lengths up to 20cm.
 - **Download Functionality**:
   - **Download Receipt Image (.PNG)**: Captures high-resolution (2x scale) pixel-perfect monochrome thermal ticket image ready for WhatsApp sharing, auditing, or archiving.
   - **Download Text (.TXT)**: Exports raw text file formatted with receipt metadata.

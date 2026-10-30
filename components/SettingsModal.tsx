@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
-import { X, Upload, Trash2, Sliders, Image as ImageIcon, Sparkles, LayoutGrid, Scissors, Bold } from "lucide-react";
-import { PrinterSettings, PaperWidth, TopLogoMode } from "@/types/receipt";
-import { LAKDHANAVI_LOGO, RIVIDHANAVI_LOGO } from "@/lib/defaultLogos";
+import React, { useState, useEffect } from "react";
+import { X, Sliders, Scissors, Bold, Sparkles } from "lucide-react";
+import { PrinterSettings, PaperWidth, DEFAULT_SETTINGS } from "@/types/receipt";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -19,13 +18,6 @@ export default function SettingsModal({
   onSave,
 }: SettingsModalProps) {
   const [currentSettings, setCurrentSettings] = useState<PrinterSettings>(settings);
-  const [topLogo1DragActive, setTopLogo1DragActive] = useState(false);
-  const [topLogo2DragActive, setTopLogo2DragActive] = useState(false);
-  const [bottomLogoDragActive, setBottomLogoDragActive] = useState(false);
-
-  const top1InputRef = useRef<HTMLInputElement>(null);
-  const top2InputRef = useRef<HTMLInputElement>(null);
-  const bottomInputRef = useRef<HTMLInputElement>(null);
 
   // Sync settings when modal opens
   useEffect(() => {
@@ -33,71 +25,28 @@ export default function SettingsModal({
       setCurrentSettings({
         ...settings,
         allLettersBold: settings.allLettersBold ?? true,
-        bottomFeedMm: settings.bottomFeedMm ?? 30,
+        bottomFeedMm: settings.bottomFeedMm ?? 60,
       });
     }
   }, [isOpen, settings]);
 
   if (!isOpen) return null;
 
-  const handleImageFile = (file: File, logoField: "topLogo" | "topLogo2" | "bottomLogo") => {
-    if (!file.type.startsWith("image/")) {
-      alert("Please upload an image file (PNG, JPG, SVG, or WebP).");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target?.result as string;
-      setCurrentSettings((prev) => ({
-        ...prev,
-        [logoField]: base64,
-      }));
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleDrop = (
-    e: React.DragEvent<HTMLDivElement>,
-    logoField: "topLogo" | "topLogo2" | "bottomLogo"
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (logoField === "topLogo") setTopLogo1DragActive(false);
-    if (logoField === "topLogo2") setTopLogo2DragActive(false);
-    if (logoField === "bottomLogo") setBottomLogoDragActive(false);
-
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleImageFile(e.dataTransfer.files[0], logoField);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
   const handleSave = () => {
     onSave(currentSettings);
     onClose();
   };
 
-  // Reset to the official Lakdhanavi & Rividhanavi Logos
-  const resetToCompanyLogos = () => {
-    setCurrentSettings((prev) => ({
-      ...prev,
-      topLogo: LAKDHANAVI_LOGO,
-      topLogo2: RIVIDHANAVI_LOGO,
-      topLogoMode: "both-side-by-side",
-      allLettersBold: true,
-      bottomFeedMm: 30,
-    }));
+  const resetDefaults = () => {
+    setCurrentSettings(DEFAULT_SETTINGS);
   };
+
+  const feedCm = (currentSettings.bottomFeedMm ?? 60) / 10;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
       <div
-        className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden text-slate-800"
+        className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden text-slate-800"
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-title"
@@ -121,28 +70,78 @@ export default function SettingsModal({
 
         {/* Body */}
         <div className="px-6 py-5 overflow-y-auto space-y-6 flex-1 text-sm">
-          {/* Company preset quick action */}
-          <div className="flex items-center justify-between p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl">
-            <div>
-              <span className="text-xs font-semibold text-indigo-900 block">
-                Official Company Logos & Presets
-              </span>
-              <span className="text-[11px] text-indigo-700">
-                Lakdhanavi & Rividhanavi • 3cm Feed • Bold Letters
+          {/* Paper Feed after Footer (Cut Margin) */}
+          <div className="space-y-3 p-4 bg-indigo-50/50 border border-indigo-100 rounded-2xl">
+            <div className="flex items-center justify-between">
+              <label htmlFor="bottom-feed-slider" className="font-semibold text-slate-900 flex items-center gap-2">
+                <Scissors className="w-4 h-4 text-indigo-600" />
+                Paper Feed after Footer (Cut Margin)
+              </label>
+              <span className="text-sm font-bold text-indigo-700 font-mono bg-white px-2.5 py-0.5 rounded-lg border border-indigo-200 shadow-2xs">
+                {feedCm} cm ({currentSettings.bottomFeedMm ?? 60} mm)
               </span>
             </div>
-            <button
-              type="button"
-              onClick={resetToCompanyLogos}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
-              Reset to Defaults
-            </button>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Feeds extra blank paper after <em>Fuel Management System</em> so your physical printer&apos;s auto-cutter or tear-bar doesn&apos;t cut into receipt text.
+            </p>
+
+            {/* Quick Presets */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1">
+              {[
+                { val: 60, label: "6 cm (Default)" },
+                { val: 80, label: "8 cm" },
+                { val: 100, label: "10 cm" },
+                { val: 120, label: "12 cm" },
+                { val: 150, label: "15 cm" },
+                { val: 40, label: "4 cm" },
+                { val: 20, label: "2 cm" },
+                { val: 0, label: "0 cm (No Feed)" },
+              ].map((opt) => (
+                <button
+                  key={opt.val}
+                  type="button"
+                  onClick={() =>
+                    setCurrentSettings((prev) => ({ ...prev, bottomFeedMm: opt.val }))
+                  }
+                  className={`py-2 px-2 text-xs rounded-xl border text-center transition ${
+                    (currentSettings.bottomFeedMm ?? 60) === opt.val
+                      ? "border-indigo-600 bg-indigo-600 text-white font-bold shadow-xs"
+                      : "border-slate-200 hover:border-slate-300 bg-white text-slate-700 font-medium"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Interactive Slider for Long Selection (0cm to 20cm) */}
+            <div className="pt-2 space-y-1.5">
+              <div className="flex justify-between text-[11px] text-slate-500 font-mono">
+                <span>0 cm (None)</span>
+                <span>Slider: 0 - 20 cm</span>
+                <span>20 cm (Long)</span>
+              </div>
+              <input
+                id="bottom-feed-slider"
+                type="range"
+                min="0"
+                max="200"
+                step="5"
+                value={currentSettings.bottomFeedMm ?? 60}
+                onChange={(e) =>
+                  setCurrentSettings((prev) => ({
+                    ...prev,
+                    bottomFeedMm: Number(e.target.value),
+                  }))
+                }
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+              />
+            </div>
           </div>
 
-          {/* Bold Print Mode Feature */}
-          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+          {/* All Letters Bold Toggle */}
+          <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
             <div className="flex items-start gap-2.5">
               <Bold className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
               <div>
@@ -150,7 +149,7 @@ export default function SettingsModal({
                   All Letters Bold (High-Contrast Thermal Printing)
                 </p>
                 <p className="text-[11px] text-slate-500">
-                  Makes all text bold so physical thermal printer pins burn dark and clear.
+                  Burns double-width thermal dots for deep black, legible letters.
                 </p>
               </div>
             </div>
@@ -170,314 +169,16 @@ export default function SettingsModal({
             </label>
           </div>
 
-          {/* Bottom Paper Feed / Margin after Footer */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label htmlFor="bottom-feed-select" className="font-medium text-slate-900 flex items-center gap-2">
-                <Scissors className="w-4 h-4 text-indigo-600" />
-                Paper Feed after Footer (Cut Margin)
-              </label>
-              <span className="text-xs text-indigo-600 font-mono font-semibold">
-                {(currentSettings.bottomFeedMm ?? 30) / 10} cm ({currentSettings.bottomFeedMm ?? 30} mm)
-              </span>
-            </div>
-            <p className="text-xs text-slate-500">
-              Leaves extra blank paper after the <em>Fuel Management System</em> footer so the auto-cutter or tear-bar doesn&apos;t cut into text.
-            </p>
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { val: 30, label: "3 cm (Default)" },
-                { val: 20, label: "2 cm" },
-                { val: 40, label: "4 cm" },
-                { val: 0, label: "No Feed (0cm)" },
-              ].map((opt) => (
-                <button
-                  key={opt.val}
-                  type="button"
-                  onClick={() =>
-                    setCurrentSettings((prev) => ({ ...prev, bottomFeedMm: opt.val }))
-                  }
-                  className={`py-2 px-2.5 text-xs font-medium rounded-xl border text-center transition ${
-                    (currentSettings.bottomFeedMm ?? 30) === opt.val
-                      ? "border-indigo-600 bg-indigo-50 text-indigo-900 font-bold shadow-xs"
-                      : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Top Logo Arrangement Mode */}
-          <div className="space-y-2 pt-2 border-t border-slate-100">
-            <label className="font-medium text-slate-900 flex items-center gap-2">
-              <LayoutGrid className="w-4 h-4 text-indigo-600" />
-              Top Logos Arrangement
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {[
-                { id: "both-side-by-side", label: "Both Side-by-Side", desc: "Small icons in top line" },
-                { id: "both-stacked", label: "Both Stacked", desc: "Top & below" },
-                { id: "lakdhanavi-only", label: "Lakdhanavi Only", desc: "Single header" },
-                { id: "rividhanavi-only", label: "Rividhanavi Only", desc: "Single header" },
-              ].map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() =>
-                    setCurrentSettings((prev) => ({
-                      ...prev,
-                      topLogoMode: opt.id as TopLogoMode,
-                    }))
-                  }
-                  className={`p-2.5 rounded-xl border text-left transition ${
-                    currentSettings.topLogoMode === opt.id
-                      ? "border-indigo-600 bg-indigo-50/70 text-indigo-950 font-medium ring-1 ring-indigo-500/20"
-                      : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
-                  }`}
-                >
-                  <div className="text-xs font-semibold">{opt.label}</div>
-                  <div className="text-[10px] text-slate-500 mt-0.5">{opt.desc}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Logo 1: Lakdhanavi (Left / Top) */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="font-medium text-slate-900">
-                Top Logo 1 (Lakdhanavi Limited)
-              </label>
-              <span className="text-xs text-slate-500">Max: 125x34px</span>
-            </div>
-
-            {currentSettings.topLogo ? (
-              <div className="flex items-center justify-between p-3 border border-slate-200 rounded-xl bg-slate-50">
-                <div className="flex items-center gap-3">
-                  <div className="w-24 h-12 bg-white border border-slate-200 rounded-lg flex items-center justify-center p-1 overflow-hidden shadow-inner">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={currentSettings.topLogo || undefined}
-                      alt="Logo 1 Preview"
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
-                  <span className="text-xs font-mono text-slate-600">Lakdhanavi Logo Loaded</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => top1InputRef.current?.click()}
-                    className="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition"
-                  >
-                    Replace
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentSettings((prev) => ({ ...prev, topLogo: null }))
-                    }
-                    className="p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition"
-                    title="Remove Logo"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div
-                onDragOver={handleDragOver}
-                onDragEnter={() => setTopLogo1DragActive(true)}
-                onDragLeave={() => setTopLogo1DragActive(false)}
-                onDrop={(e) => handleDrop(e, "topLogo")}
-                onClick={() => top1InputRef.current?.click()}
-                className={`border-2 border-dashed rounded-xl p-3 text-center cursor-pointer transition ${
-                  topLogo1DragActive
-                    ? "border-indigo-500 bg-indigo-50/50"
-                    : "border-slate-300 hover:border-slate-400 bg-slate-50/50 hover:bg-slate-50"
-                }`}
-              >
-                <div className="flex flex-col items-center justify-center gap-1 text-slate-500">
-                  <Upload className="w-4 h-4 text-slate-600" />
-                  <p className="text-xs font-medium text-slate-700">Upload Logo 1</p>
-                </div>
-              </div>
-            )}
-            <input
-              ref={top1InputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  handleImageFile(e.target.files[0], "topLogo");
-                }
-              }}
-            />
-          </div>
-
-          {/* Logo 2: Rividhanavi (Right / Secondary Top) */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="font-medium text-slate-900">
-                Top Logo 2 (Rividhanavi (Private) Limited)
-              </label>
-              <span className="text-xs text-slate-500">Max: 125x34px</span>
-            </div>
-
-            {currentSettings.topLogo2 ? (
-              <div className="flex items-center justify-between p-3 border border-slate-200 rounded-xl bg-slate-50">
-                <div className="flex items-center gap-3">
-                  <div className="w-24 h-12 bg-white border border-slate-200 rounded-lg flex items-center justify-center p-1 overflow-hidden shadow-inner">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={currentSettings.topLogo2 || undefined}
-                      alt="Logo 2 Preview"
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
-                  <span className="text-xs font-mono text-slate-600">Rividhanavi Logo Loaded</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => top2InputRef.current?.click()}
-                    className="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition"
-                  >
-                    Replace
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentSettings((prev) => ({ ...prev, topLogo2: null }))
-                    }
-                    className="p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition"
-                    title="Remove Logo"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div
-                onDragOver={handleDragOver}
-                onDragEnter={() => setTopLogo2DragActive(true)}
-                onDragLeave={() => setTopLogo2DragActive(false)}
-                onDrop={(e) => handleDrop(e, "topLogo2")}
-                onClick={() => top2InputRef.current?.click()}
-                className={`border-2 border-dashed rounded-xl p-3 text-center cursor-pointer transition ${
-                  topLogo2DragActive
-                    ? "border-indigo-500 bg-indigo-50/50"
-                    : "border-slate-300 hover:border-slate-400 bg-slate-50/50 hover:bg-slate-50"
-                }`}
-              >
-                <div className="flex flex-col items-center justify-center gap-1 text-slate-500">
-                  <Upload className="w-4 h-4 text-slate-600" />
-                  <p className="text-xs font-medium text-slate-700">Upload Logo 2</p>
-                </div>
-              </div>
-            )}
-            <input
-              ref={top2InputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  handleImageFile(e.target.files[0], "topLogo2");
-                }
-              }}
-            />
-          </div>
-
-          {/* Optional Footer Logo (Bottom) */}
-          <div className="space-y-2 pt-2 border-t border-slate-100">
-            <div className="flex items-center justify-between">
-              <label className="font-medium text-slate-900">
-                Optional Footer Logo (Bottom)
-              </label>
-              <span className="text-xs text-slate-500">Max: 100x30px</span>
-            </div>
-
-            {currentSettings.bottomLogo ? (
-              <div className="flex items-center justify-between p-3 border border-slate-200 rounded-xl bg-slate-50">
-                <div className="flex items-center gap-3">
-                  <div className="w-16 h-12 bg-white border border-slate-200 rounded-lg flex items-center justify-center p-1 overflow-hidden shadow-inner">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={currentSettings.bottomLogo || undefined}
-                      alt="Footer Logo Preview"
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
-                  <span className="text-xs font-mono text-slate-600">Footer Logo loaded</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => bottomInputRef.current?.click()}
-                    className="px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-300 rounded-lg shadow-sm hover:bg-slate-50 transition"
-                  >
-                    Replace
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentSettings((prev) => ({ ...prev, bottomLogo: null }))
-                    }
-                    className="p-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition"
-                    title="Remove Footer Logo"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div
-                onDragOver={handleDragOver}
-                onDragEnter={() => setBottomLogoDragActive(true)}
-                onDragLeave={() => setBottomLogoDragActive(false)}
-                onDrop={(e) => handleDrop(e, "bottomLogo")}
-                onClick={() => bottomInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-xl p-3 text-center cursor-pointer transition ${
-                  bottomLogoDragActive
-                    ? "border-indigo-500 bg-indigo-50/50"
-                    : "border-slate-300 hover:border-slate-400 bg-slate-50/50 hover:bg-slate-50"
-                }`}
-              >
-                <div className="flex flex-col items-center justify-center gap-1 text-slate-500">
-                  <ImageIcon className="w-4 h-4 text-slate-600" />
-                  <p className="text-xs font-medium text-slate-700">
-                    Click to upload optional footer logo
-                  </p>
-                </div>
-              </div>
-            )}
-            <input
-              ref={bottomInputRef}
-              type="file"
-              accept="image/png,image/jpeg,image/svg+xml,image/webp"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  handleImageFile(e.target.files[0], "bottomLogo");
-                }
-              }}
-            />
-          </div>
-
           {/* Paper Width Dropdown */}
-          <div className="space-y-2 pt-2 border-t border-slate-100">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label htmlFor="paper-width-select" className="font-medium text-slate-900">
                 Paper Width
               </label>
               <span className="text-xs text-indigo-600 font-mono">
-                {currentSettings.paperWidth === "58mm" && "219px"}
-                {currentSettings.paperWidth === "75mm" && "283px (Standard)"}
-                {currentSettings.paperWidth === "80mm" && "302px"}
+                {currentSettings.paperWidth === "58mm" && "219px (approx 32 cols)"}
+                {currentSettings.paperWidth === "75mm" && "283px (Standard POS)"}
+                {currentSettings.paperWidth === "80mm" && "302px (approx 48 cols)"}
               </span>
             </div>
             <select
@@ -513,7 +214,7 @@ export default function SettingsModal({
                   }
                   className={`py-2 px-3 text-xs font-medium rounded-lg border text-center capitalize transition ${
                     currentSettings.fontSize === size
-                      ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm"
+                      ? "border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm font-semibold"
                       : "border-slate-200 text-slate-600 hover:bg-slate-50"
                   }`}
                 >
@@ -523,6 +224,18 @@ export default function SettingsModal({
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Reset to Defaults */}
+          <div className="pt-2 border-t border-slate-100 flex justify-end">
+            <button
+              type="button"
+              onClick={resetDefaults}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-slate-400" />
+              Reset all to defaults
+            </button>
           </div>
         </div>
 

@@ -12,7 +12,7 @@ import { DEFAULT_SETTINGS, PrinterSettings, SAMPLE_RECEIPT_TEXT } from "@/types/
 
 export default function Home() {
   const [settings, setSettings, isSettingsLoaded] = useLocalStorage<PrinterSettings>(
-    "thermal_printer_settings_v3",
+    "thermal_printer_settings_v4",
     DEFAULT_SETTINGS
   );
 
@@ -78,7 +78,7 @@ export default function Home() {
               type="button"
               onClick={() => setIsSettingsOpen(true)}
               className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200/80 border border-slate-200 rounded-xl transition shadow-sm active:scale-95"
-              title="Open Settings (Logos, Paper Width, Formatting)"
+              title="Open Settings (Paper Width, Cut Margin, Bold Mode, Font Size)"
               aria-label="Settings"
             >
               <Settings className="w-4 h-4 text-slate-600" />
@@ -95,7 +95,7 @@ export default function Home() {
           <div className="flex items-center gap-2 text-xs text-slate-600">
             <Info className="w-4 h-4 text-indigo-600 shrink-0" />
             <span>
-              Preview the receipt with <strong>Lakdhanavi</strong> & <strong>Rividhanavi</strong> logos, then <strong>Print</strong> or <strong>Download</strong>.
+              Preview the 75mm thermal ticket in bold monospace text, then click <strong>Print Receipt</strong> or <strong>Download</strong>.
             </span>
           </div>
 

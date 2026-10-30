@@ -10,15 +10,11 @@ interface ReceiptPreviewProps {
 
 export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) {
   const {
-    topLogo,
-    topLogo2,
-    topLogoMode = "both-side-by-side",
-    bottomLogo,
     paperWidth,
     fontSize,
     smartFormatting,
     allLettersBold = true,
-    bottomFeedMm = 30, // Default 30mm = 3cm
+    bottomFeedMm = 60, // Default 60mm = 6cm
   } = settings;
 
   const previewPixelWidth = PAPER_WIDTH_PIXELS[paperWidth] || 283;
@@ -168,90 +164,6 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
     });
   }, [text, smartFormatting, baseFontSizeClass, boldWeightClass]);
 
-  // Render top logos based on settings
-  const renderTopLogos = () => {
-    const hasLogo1 = Boolean(topLogo);
-    const hasLogo2 = Boolean(topLogo2);
-
-    if (!hasLogo1 && !hasLogo2) return null;
-
-    if (topLogoMode === "both-side-by-side" && hasLogo1 && hasLogo2) {
-      return (
-        <div className="receipt-top-logos flex items-center justify-between gap-2 pt-1 pb-2 px-1">
-          {/* Logo 1: Lakdhanavi */}
-          <div className="flex-1 flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={topLogo!}
-              alt="Lakdhanavi Logo"
-              className="receipt-logo max-h-[34px] max-w-[125px] object-contain print:max-h-[8mm]"
-            />
-          </div>
-
-          {/* Divider Dot / Vertical Separator */}
-          <div className="h-6 w-px bg-slate-300 print:bg-black/40 opacity-70" />
-
-          {/* Logo 2: Rividhanavi */}
-          <div className="flex-1 flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={topLogo2!}
-              alt="Rividhanavi Logo"
-              className="receipt-logo max-h-[34px] max-w-[125px] object-contain print:max-h-[8mm]"
-            />
-          </div>
-        </div>
-      );
-    }
-
-    if (topLogoMode === "both-stacked" && hasLogo1 && hasLogo2) {
-      return (
-        <div className="receipt-top-logos flex flex-col items-center justify-center gap-1.5 pt-1 pb-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={topLogo!}
-            alt="Logo 1"
-            className="receipt-logo max-h-[32px] max-w-[140px] object-contain print:max-h-[7mm]"
-          />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={topLogo2!}
-            alt="Logo 2"
-            className="receipt-logo max-h-[30px] max-w-[130px] object-contain print:max-h-[7mm]"
-          />
-        </div>
-      );
-    }
-
-    if (topLogoMode === "rividhanavi-only" && hasLogo2) {
-      return (
-        <div className="receipt-top-logos flex items-center justify-center pt-1 pb-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={topLogo2 || undefined}
-            alt="Rividhanavi Logo"
-            className="receipt-logo max-h-[40px] max-w-[140px] object-contain print:max-h-[9mm]"
-          />
-        </div>
-      );
-    }
-
-    // Default: Single top logo (Lakdhanavi or custom)
-    const singleLogo = hasLogo1 ? topLogo : topLogo2;
-    if (!singleLogo) return null;
-
-    return (
-      <div className="receipt-top-logos flex items-center justify-center pt-1 pb-2">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={singleLogo}
-          alt="Company Logo"
-          className="receipt-logo max-h-[40px] max-w-[150px] object-contain print:max-h-[9mm]"
-        />
-      </div>
-    );
-  };
-
   return (
     <div className="flex flex-col items-center justify-start w-full h-full p-4 sm:p-6 bg-slate-200/70 rounded-2xl border border-slate-300 shadow-inner overflow-auto">
       {/* Paper width & bold pill indicator */}
@@ -278,7 +190,7 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
           minHeight: "360px",
           paddingLeft: "8px",
           paddingRight: "8px",
-          paddingTop: "12px",
+          paddingTop: "14px",
           paddingBottom: "4px",
           backgroundColor: "#ffffff",
         }}
@@ -293,9 +205,6 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
             backgroundRepeat: "repeat-x",
           }}
         />
-
-        {/* Top Logos (Small icons at the top of print) */}
-        {renderTopLogos()}
 
         {/* Receipt Content */}
         {renderedLines ? (
@@ -312,19 +221,7 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
           </div>
         )}
 
-        {/* Bottom Logo (Footer Logo) */}
-        {bottomLogo && (
-          <div className="receipt-logo-container flex items-center justify-center pt-3 pb-1">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={bottomLogo || undefined}
-              alt="Footer Logo"
-              className="receipt-logo max-h-[30px] max-w-[100px] object-contain mx-auto print:max-h-[8mm]"
-            />
-          </div>
-        )}
-
-        {/* 3cm Paper Feed after Fuel Management System section */}
+        {/* Paper Feed Tail after Fuel Management System section (Default 6cm, 8cm, 10cm, etc.) */}
         {bottomFeedMm > 0 && (
           <div
             className="receipt-feed-tail w-full relative flex items-center justify-center select-none"

@@ -1,24 +1,11 @@
-import { LAKDHANAVI_LOGO, RIVIDHANAVI_LOGO } from "@/lib/defaultLogos";
-
 export type PaperWidth = "58mm" | "75mm" | "80mm";
 
-export type TopLogoMode =
-  | "both-side-by-side"
-  | "both-stacked"
-  | "lakdhanavi-only"
-  | "rividhanavi-only"
-  | "custom";
-
 export interface PrinterSettings {
-  topLogo: string | null;
-  topLogo2: string | null;
-  topLogoMode: TopLogoMode;
-  bottomLogo: string | null;
   paperWidth: PaperWidth;
   fontSize: "compact" | "normal" | "large";
   smartFormatting: boolean;
   allLettersBold: boolean;
-  bottomFeedMm: number; // in millimeters, default 30mm (3cm)
+  bottomFeedMm: number; // in millimeters, default 60mm (6cm)
 }
 
 export const PAPER_WIDTH_PIXELS: Record<PaperWidth, number> = {
@@ -28,15 +15,11 @@ export const PAPER_WIDTH_PIXELS: Record<PaperWidth, number> = {
 };
 
 export const DEFAULT_SETTINGS: PrinterSettings = {
-  topLogo: LAKDHANAVI_LOGO,
-  topLogo2: RIVIDHANAVI_LOGO,
-  topLogoMode: "both-side-by-side",
-  bottomLogo: null,
   paperWidth: "75mm",
   fontSize: "normal",
   smartFormatting: true,
   allLettersBold: true,
-  bottomFeedMm: 30, // 3cm paper feed after footer
+  bottomFeedMm: 60, // 6cm default paper feed tail after footer
 };
 
 export const SAMPLE_RECEIPT_TEXT = `========================================
