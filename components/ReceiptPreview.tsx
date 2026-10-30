@@ -9,7 +9,18 @@ interface ReceiptPreviewProps {
 }
 
 export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) {
-  const { topLogo, topLogo2, topLogoMode = "both-side-by-side", bottomLogo, paperWidth, fontSize, smartFormatting } = settings;
+  const {
+    topLogo,
+    topLogo2,
+    topLogoMode = "both-side-by-side",
+    bottomLogo,
+    paperWidth,
+    fontSize,
+    smartFormatting,
+    allLettersBold = true,
+    bottomFeedMm = 30, // Default 30mm = 3cm
+  } = settings;
+
   const previewPixelWidth = PAPER_WIDTH_PIXELS[paperWidth] || 283;
 
   // Font size scale class
@@ -19,6 +30,8 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
       : fontSize === "large"
       ? "text-[13px]"
       : "text-[12px]";
+
+  const boldWeightClass = allLettersBold ? "font-bold" : "font-normal";
 
   // Process text lines if smart formatting is enabled
   const renderedLines = useMemo(() => {
@@ -30,7 +43,7 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
 
     if (!smartFormatting) {
       return (
-        <pre className={`font-mono ${baseFontSizeClass} leading-[1.4] text-black whitespace-pre-wrap break-words m-0`}>
+        <pre className={`font-mono ${baseFontSizeClass} ${boldWeightClass} leading-[1.4] text-black whitespace-pre-wrap break-words m-0`}>
           {text}
         </pre>
       );
@@ -51,7 +64,7 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
         return (
           <div
             key={index}
-            className="font-mono text-[12px] leading-[1.2] text-black tracking-tighter overflow-hidden select-none"
+            className="font-mono font-bold text-[12px] leading-[1.2] text-black tracking-tighter overflow-hidden select-none"
           >
             {line}
           </div>
@@ -69,7 +82,7 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
         return (
           <div
             key={index}
-            className="font-mono font-bold text-[15px] leading-tight text-center text-black py-0.5 tracking-wide uppercase"
+            className="font-mono font-black text-[15px] leading-tight text-center text-black py-0.5 tracking-wide uppercase"
           >
             {trimmed}
           </div>
@@ -85,7 +98,7 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
         return (
           <div
             key={index}
-            className="font-mono font-bold text-[13px] leading-tight text-center text-black pt-1"
+            className="font-mono font-black text-[13px] leading-tight text-center text-black pt-1"
           >
             {trimmed}
           </div>
@@ -120,7 +133,7 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
         return (
           <div
             key={index}
-            className="font-mono font-semibold text-[13px] leading-tight text-center text-black py-0.5"
+            className="font-mono font-bold text-[13px] leading-tight text-center text-black py-0.5"
           >
             {trimmed}
           </div>
@@ -136,24 +149,24 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
         return (
           <div
             key={index}
-            className="font-mono text-[12px] text-center text-black pt-2 pb-1"
+            className={`font-mono ${boldWeightClass} text-[12px] text-center text-black pt-2 pb-1`}
           >
             {trimmed}
           </div>
         );
       }
 
-      // Default line: preserve monospace alignment
+      // Default body line: bold monospace alignment
       return (
         <div
           key={index}
-          className={`font-mono ${baseFontSizeClass} leading-[1.4] text-black whitespace-pre-wrap break-words`}
+          className={`font-mono ${baseFontSizeClass} ${boldWeightClass} leading-[1.4] text-black whitespace-pre-wrap break-words`}
         >
           {line}
         </div>
       );
     });
-  }, [text, smartFormatting, baseFontSizeClass]);
+  }, [text, smartFormatting, baseFontSizeClass, boldWeightClass]);
 
   // Render top logos based on settings
   const renderTopLogos = () => {
@@ -241,12 +254,20 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
 
   return (
     <div className="flex flex-col items-center justify-start w-full h-full p-4 sm:p-6 bg-slate-200/70 rounded-2xl border border-slate-300 shadow-inner overflow-auto">
-      {/* Paper width pill */}
-      <div className="mb-3 px-3 py-1 bg-white/90 backdrop-blur-sm border border-slate-300 rounded-full text-[11px] font-mono text-slate-600 shadow-sm flex items-center gap-2 select-none print:hidden">
-        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-        <span>
-          Thermal Paper: <strong className="text-slate-800">{paperWidth}</strong> ({previewPixelWidth}px)
-        </span>
+      {/* Paper width & bold pill indicator */}
+      <div className="mb-3 flex items-center gap-2 select-none print:hidden flex-wrap justify-center">
+        <div className="px-3 py-1 bg-white/90 backdrop-blur-sm border border-slate-300 rounded-full text-[11px] font-mono text-slate-600 shadow-sm flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>
+            Thermal Paper: <strong className="text-slate-800">{paperWidth}</strong> ({previewPixelWidth}px)
+          </span>
+        </div>
+        <div className="px-2.5 py-1 bg-indigo-50 border border-indigo-200 rounded-full text-[11px] font-mono font-bold text-indigo-700">
+          Bold Print Mode: ON
+        </div>
+        <div className="px-2.5 py-1 bg-slate-100 border border-slate-300 rounded-full text-[11px] font-mono text-slate-700">
+          Tail: {bottomFeedMm / 10}cm
+        </div>
       </div>
 
       {/* Realistic Paper Container */}
@@ -258,7 +279,7 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
           paddingLeft: "8px",
           paddingRight: "8px",
           paddingTop: "12px",
-          paddingBottom: "16px",
+          paddingBottom: "4px",
           backgroundColor: "#ffffff",
         }}
       >
@@ -278,7 +299,7 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
 
         {/* Receipt Content */}
         {renderedLines ? (
-          <div className="receipt-content-body font-mono select-text">
+          <div className={`receipt-content-body font-mono ${boldWeightClass} select-text text-black`}>
             {renderedLines}
           </div>
         ) : (
@@ -300,6 +321,20 @@ export default function ReceiptPreview({ text, settings }: ReceiptPreviewProps) 
               alt="Footer Logo"
               className="receipt-logo max-h-[30px] max-w-[100px] object-contain mx-auto print:max-h-[8mm]"
             />
+          </div>
+        )}
+
+        {/* 3cm Paper Feed after Fuel Management System section */}
+        {bottomFeedMm > 0 && (
+          <div
+            className="receipt-feed-tail w-full relative flex items-center justify-center select-none"
+            style={{ height: `${bottomFeedMm}mm`, minHeight: `${bottomFeedMm}mm` }}
+          >
+            {/* Subtle dashed guide line for screen preview */}
+            <div className="w-full border-b border-dashed border-slate-300/70 print:hidden" />
+            <span className="receipt-feed-guide absolute px-2 bg-white text-[10px] text-slate-400 font-mono tracking-tight print:hidden">
+              ✂ {bottomFeedMm / 10}cm paper feed (cutter margin)
+            </span>
           </div>
         )}
 

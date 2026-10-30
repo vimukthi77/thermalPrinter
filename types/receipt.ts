@@ -17,6 +17,8 @@ export interface PrinterSettings {
   paperWidth: PaperWidth;
   fontSize: "compact" | "normal" | "large";
   smartFormatting: boolean;
+  allLettersBold: boolean;
+  bottomFeedMm: number; // in millimeters, default 30mm (3cm)
 }
 
 export const PAPER_WIDTH_PIXELS: Record<PaperWidth, number> = {
@@ -33,6 +35,8 @@ export const DEFAULT_SETTINGS: PrinterSettings = {
   paperWidth: "75mm",
   fontSize: "normal",
   smartFormatting: true,
+  allLettersBold: true,
+  bottomFeedMm: 30, // 3cm paper feed after footer
 };
 
 export const SAMPLE_RECEIPT_TEXT = `========================================

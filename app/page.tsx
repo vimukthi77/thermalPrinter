@@ -12,7 +12,7 @@ import { DEFAULT_SETTINGS, PrinterSettings, SAMPLE_RECEIPT_TEXT } from "@/types/
 
 export default function Home() {
   const [settings, setSettings, isSettingsLoaded] = useLocalStorage<PrinterSettings>(
-    "thermal_printer_settings_v2",
+    "thermal_printer_settings_v3",
     DEFAULT_SETTINGS
   );
 

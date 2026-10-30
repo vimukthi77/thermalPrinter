@@ -32,6 +32,12 @@ body {
   animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Screen thermal preview bold reinforcement */
+.receipt-preview {
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+}
+
 /* Base Print Styles for 75mm Thermal Printer */
 @media print {
   html, body {
@@ -40,6 +46,7 @@ body {
     padding: 0 !important;
     background: #ffffff !important;
     font-family: "Courier New", Courier, Consolas, monospace !important;
+    font-weight: 700 !important;
   }
 
   /* Hide everything except the receipt preview */
@@ -50,6 +57,9 @@ body {
   .receipt-preview,
   .receipt-preview * {
     visibility: visible;
+    font-weight: 700 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   .receipt-preview {
@@ -58,7 +68,7 @@ body {
     top: 0 !important;
     width: 75mm !important;
     max-width: 75mm !important;
-    padding: 2mm !important;
+    padding: 2mm 2mm 0 2mm !important;
     margin: 0 !important;
     background: #ffffff !important;
     box-shadow: none !important;
@@ -67,14 +77,14 @@ body {
     overflow: visible !important;
   }
 
-  /* Force monochrome */
+  /* Force pitch-black monochrome with thermal dot reinforcement */
   * {
     color: #000000 !important;
     background: #ffffff !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     box-shadow: none !important;
-    text-shadow: none !important;
+    text-shadow: 0 0 0.35px #000000 !important; /* Forces thick, dark thermal pin strikes */
   }
 
   /* Logos in print */
@@ -92,7 +102,21 @@ body {
     max-width: 32mm !important;
     display: block !important;
     object-fit: contain !important;
-    filter: grayscale(100%) contrast(130%) !important;
+    filter: grayscale(100%) contrast(140%) !important;
+  }
+
+  /* 3cm paper feed tail after footer */
+  .receipt-feed-tail {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .receipt-feed-guide {
+    display: none !important;
+    visibility: hidden !important;
   }
 
   @page {

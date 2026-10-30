@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { X, Upload, Trash2, Sliders, Image as ImageIcon, Sparkles, LayoutGrid } from "lucide-react";
+import { X, Upload, Trash2, Sliders, Image as ImageIcon, Sparkles, LayoutGrid, Scissors, Bold } from "lucide-react";
 import { PrinterSettings, PaperWidth, TopLogoMode } from "@/types/receipt";
 import { LAKDHANAVI_LOGO, RIVIDHANAVI_LOGO } from "@/lib/defaultLogos";
 
@@ -30,7 +30,11 @@ export default function SettingsModal({
   // Sync settings when modal opens
   useEffect(() => {
     if (isOpen) {
-      setCurrentSettings(settings);
+      setCurrentSettings({
+        ...settings,
+        allLettersBold: settings.allLettersBold ?? true,
+        bottomFeedMm: settings.bottomFeedMm ?? 30,
+      });
     }
   }, [isOpen, settings]);
 
@@ -85,6 +89,8 @@ export default function SettingsModal({
       topLogo: LAKDHANAVI_LOGO,
       topLogo2: RIVIDHANAVI_LOGO,
       topLogoMode: "both-side-by-side",
+      allLettersBold: true,
+      bottomFeedMm: 30,
     }));
   };
 
@@ -119,10 +125,10 @@ export default function SettingsModal({
           <div className="flex items-center justify-between p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl">
             <div>
               <span className="text-xs font-semibold text-indigo-900 block">
-                Official Company Logos
+                Official Company Logos & Presets
               </span>
               <span className="text-[11px] text-indigo-700">
-                Lakdhanavi Limited & Rividhanavi (Private) Limited
+                Lakdhanavi & Rividhanavi • 3cm Feed • Bold Letters
               </span>
             </div>
             <button
@@ -135,8 +141,76 @@ export default function SettingsModal({
             </button>
           </div>
 
-          {/* Top Logo Arrangement Mode */}
+          {/* Bold Print Mode Feature */}
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+            <div className="flex items-start gap-2.5">
+              <Bold className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-slate-900 text-xs">
+                  All Letters Bold (High-Contrast Thermal Printing)
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Makes all text bold so physical thermal printer pins burn dark and clear.
+                </p>
+              </div>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+              <input
+                type="checkbox"
+                checked={currentSettings.allLettersBold ?? true}
+                onChange={(e) =>
+                  setCurrentSettings((prev) => ({
+                    ...prev,
+                    allLettersBold: e.target.checked,
+                  }))
+                }
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+            </label>
+          </div>
+
+          {/* Bottom Paper Feed / Margin after Footer */}
           <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label htmlFor="bottom-feed-select" className="font-medium text-slate-900 flex items-center gap-2">
+                <Scissors className="w-4 h-4 text-indigo-600" />
+                Paper Feed after Footer (Cut Margin)
+              </label>
+              <span className="text-xs text-indigo-600 font-mono font-semibold">
+                {(currentSettings.bottomFeedMm ?? 30) / 10} cm ({currentSettings.bottomFeedMm ?? 30} mm)
+              </span>
+            </div>
+            <p className="text-xs text-slate-500">
+              Leaves extra blank paper after the <em>Fuel Management System</em> footer so the auto-cutter or tear-bar doesn&apos;t cut into text.
+            </p>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { val: 30, label: "3 cm (Default)" },
+                { val: 20, label: "2 cm" },
+                { val: 40, label: "4 cm" },
+                { val: 0, label: "No Feed (0cm)" },
+              ].map((opt) => (
+                <button
+                  key={opt.val}
+                  type="button"
+                  onClick={() =>
+                    setCurrentSettings((prev) => ({ ...prev, bottomFeedMm: opt.val }))
+                  }
+                  className={`py-2 px-2.5 text-xs font-medium rounded-xl border text-center transition ${
+                    (currentSettings.bottomFeedMm ?? 30) === opt.val
+                      ? "border-indigo-600 bg-indigo-50 text-indigo-900 font-bold shadow-xs"
+                      : "border-slate-200 hover:border-slate-300 bg-white text-slate-700"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Top Logo Arrangement Mode */}
+          <div className="space-y-2 pt-2 border-t border-slate-100">
             <label className="font-medium text-slate-900 flex items-center gap-2">
               <LayoutGrid className="w-4 h-4 text-indigo-600" />
               Top Logos Arrangement
